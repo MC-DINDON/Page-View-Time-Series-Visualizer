@@ -14,9 +14,10 @@ df = df[q1&q2]
 
 
 def draw_line_plot():
+    df_line = df.copy()
     # Draw line plot
-    x = df.index
-    y = df.value
+    x = df_line.index
+    y = df_line.value
     fig, ax = plt.subplots(figsize=(16,5))
     plt.plot(x, y, color='red', linewidth=1)
     plt.xlabel("Date")  # add X-axis label
@@ -28,15 +29,17 @@ def draw_line_plot():
     return fig
 
 def draw_bar_plot():
+    df_bar = df.copy()
     # Copy and modify data for monthly bar plot
-    df_bar = None
+    df_bar['year'], df_bar['month'] = df.index.year, df.index.month
+    df_bar = df_bar.groupby(['year','month'],as_index=False).mean().round(0).astype(int)
+    df_bar['month'] = pd.to_datetime(df_bar['month'], format='%m').dt.month_name()
+    df_bar.rename(columns={"year":"Years","value":"Average Page Views","month":"Months"}, inplace = True)
 
     # Draw bar plot
+    fig, ax = plt.subplots()
 
-
-
-
-
+    chart = sns.barplot(data=df_bar, x="Years", y="Average Page Views", hue="Months", palette="tab10")
     # Save image and return fig (don't change this part)
     fig.savefig('bar_plot.png')
     return fig
